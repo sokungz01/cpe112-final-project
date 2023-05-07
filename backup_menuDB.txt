@@ -1,0 +1,6 @@
+SORABID$100$100,TORKSODSOD$9$1,9Nine$0$9
+Meats,Vegetables,Desserts,Drinks
+Sliced Beef$100,Chunk$20,Pork Shoulder$10,Pork Loin$20,Tenderloin$10,Bacon$9,Chicken Breast$9
+Mushroom$50
+Vanila Ice cream$1,Chocolate Ice cream$99,Brownies$505,Blueberry Cheese pie$22
+Coca cola$9,Pepsi$88,Sprite$505,Bottle of water$61216,Ice$9999999
