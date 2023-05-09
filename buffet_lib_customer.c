@@ -200,6 +200,58 @@ void SearchMenu(CATEGORY_T **categoryList) {
   printf("=============================\n\n");
   hold("Enter to continue ...");
 }
+/*
+  ยังไม่ได้เปลี่ยนชื่อจ้า มันเอาไว้เสริมความสามารถของฟังก์ชัน addMenuToCart
+  สามารถเพิ่มจำนวนเมนูได้ด้วยการพิมพ์ชื่อเมนูทีี่มีอยู่แล้ว ระบบจะทำการเพิ่มให้อัตโนมัติ
+*/
+int findStackElement(MENU_T **orderStack, char *name, int newQty, int max) {
+  if (*orderStack == NULL) {
+    return -1;
+  }
+  int qty = 0;
+  int functionRetVal = 0;
+  int popRetVal = 0, newflag = 0;
+  char peekRetVal[BUFFER_SIZE];
+  MENU_T *tempStack = NULL;
+  do {
+    strcpy(peekRetVal, peek(orderStack, &qty));
+    if (strcmp(peekRetVal, name) == 0) {
+      printf("%d\n", max);
+      if ((*orderStack)->qty + newQty <= max &&
+          (*orderStack)->qty + newQty >= 0) {
+        (*orderStack)->qty += newQty;
+        functionRetVal = 1;
+      } else {
+        hold("yedtood\n");
+        functionRetVal = 2;
+      }
+      if ((*orderStack)->qty == 0) {
+        pop(orderStack);
+      }
+      break;
+    }
+    push(&tempStack, peekRetVal, qty);
+    popRetVal = pop(orderStack);
+  } while (popRetVal != -1);
+
+  if (newQty < 0 && popRetVal == -1) {
+    hold("tid lob i yed mae\nPress Enter to continue ...\n");
+    functionRetVal = 2;
+  } else if (popRetVal == -1) {
+    newflag = 1;
+  }
+  if (tempStack != NULL) {
+    do {
+      strcpy(peekRetVal, peek(&tempStack, &qty));
+      push(orderStack, peekRetVal, qty);
+      popRetVal = pop(&tempStack);
+    } while (popRetVal != -1);
+  }
+  if (newflag == 1) {
+    push(orderStack, name, newQty);
+  }
+  return functionRetVal;
+}
 
 /* Add menu to cart for order menu and select action
  * select between save and exit or order all menu in cart
@@ -215,7 +267,7 @@ void SearchMenu(CATEGORY_T **categoryList) {
  *    SUCCESS        -  selected menu are added in cart
  */
 int addMenutoCart(CATEGORY_T *categoryList, QUEUE_T *queue, TABLE_T *table,
-                  int tableNumber) {
+                  int tableNumber,char *queueDBPath) {
   if (table == NULL) {
     return NULL_DETECTED;
   }
@@ -274,8 +326,8 @@ int addMenutoCart(CATEGORY_T *categoryList, QUEUE_T *queue, TABLE_T *table,
           if (pop(&menuCart) == -1)
             break;
         }
-        // OrderMenu(queue, tableNumber, order);
-        writeQueue(table, tableNumber, "test.txt");
+        // OrderMenu(queue,tableNumber,order);
+        writeQueue(tableNumber, order, queueDBPath);
         table[tableNumber - 1].menuList = NULL;
       } else {
         printf("ERROR! Please add menu at least 1 item in the cart");
@@ -307,14 +359,19 @@ int addMenutoCart(CATEGORY_T *categoryList, QUEUE_T *queue, TABLE_T *table,
       system("clear");
     }
     if (quantity > menuSearch->qty) { /* case 2, quantity that user input is
-                                         more than quantity in stock  */
+                                        more than quantity in stock  */
       hold("Quantity of menu is less than was you entered\nPress Enter to "
            "continue ...");
       system("clear");
       continue;
     }
     /* if order not invalid push order to cart*/
-    push(&menuCart, menuName, quantity);
+    int findRet =
+        findStackElement(&menuCart, menuName, quantity, menuSearch->qty);
+    // if (findRet != 1 && findRet != 2)
+    //   push(&menuCart, menuName, quantity);
+    if (findRet == -1 && quantity > 0)
+      push(&menuCart, menuName, quantity);
     SyncTableCart(table, tableNumber, &menuCart);
     printf("%s", MESSAGE[retVal]);
     system("clear");
@@ -351,7 +408,7 @@ int OrderMenu(QUEUE_T *queue, int tableNumber, MENU_T *menuList) {
   if (tableNumber <= 0 || tableNumber > MAX_TABLE) {
     return NOT_VALID;
   }
-  // enqueue(queue, tableNumber, menuList);
+  enqueue(queue, tableNumber, menuList);
   return SUCCESS;
 }
 

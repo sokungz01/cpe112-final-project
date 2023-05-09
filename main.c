@@ -15,7 +15,9 @@ int main(void) {
   // FILE *fptr = fopen("test.txt","w");
   // fprintf(fptr,"");
   // fclose(fptr);
+  // readqueueFile(NULL,"test.txt", NULL);
   // hold("test\n");
+  // system("clear");
   // return 0;
 
   QUEUE_T *queue = createQueue();
@@ -36,6 +38,7 @@ int main(void) {
       switch (action) {
       /* Show recent order */
       case 1: {
+        readqueueFile(queue,"queueDB.txt");
         recentOrder(queue, menu);
         break;
       }
@@ -298,7 +301,7 @@ int main(void) {
         }
         /* add menu to cart  */
         case 3: {
-          addMenutoCart(menu, queue, table, tableNumber);
+          addMenutoCart(menu, queue, table, tableNumber,"queueDB.txt");
           break;
         }
         /* Check Bill function */

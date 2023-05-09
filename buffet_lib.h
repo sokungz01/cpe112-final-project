@@ -36,7 +36,6 @@ typedef struct table {
 } TABLE_T;
 
 typedef struct queueNode {
-  int queueNumber;
   int tableNumber;
   MENU_T *menuList;
   struct queueNode *next;
@@ -87,6 +86,6 @@ int readDataFromFile(CATEGORY_T **categoryList, VOUCHER_T **voucherList,
                      const char *readFromPath);
 int recentOrder(QUEUE_T *queue, CATEGORY_T *categoryList);
 
-int writeQueue(TABLE_T *tableArray, int tableNumber,char *writeToPath);
-int readQueue();
+int writeQueue(int tableNumber, MENU_T *order, char *writeToPath);
+int readqueueFile(QUEUE_T *queueHead, char *readFromPath);
 #endif

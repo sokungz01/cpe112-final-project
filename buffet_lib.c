@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Display string and get char input from user 
+/* Display string and get char input from user
  * [ Argument ]
  *    msg  -  pointer to const char that store string
  */
@@ -21,7 +21,7 @@ void hold(const char *msg) {
  */
 void getInput(char *inputStream, int size) {
   fgets(inputStream, size, stdin);
-  /* change last char of string to '\0' */
+  /* if last char is '\n' change it to '\0' */
   if (inputStream[strlen(inputStream) - 1] == '\n') {
     inputStream[strlen(inputStream) - 1] = '\0';
   }
@@ -944,7 +944,7 @@ int removeVoucher(VOUCHER_T **voucherList, const char *voucherName) {
   return SUCCESS;
 }
 
-/* Remove the voucher in voucher list
+/* Show all recent orders from customer in each table
  *  [ Argument ]
  *    queue         -  pointer to QUEUE_T that store first item of queue
  *    categoryList  -  pointer to CATEGORY_T that store first item of category
@@ -1045,21 +1045,66 @@ int recentOrder(QUEUE_T *queue, CATEGORY_T *categoryList) {
   return SUCCESS;
 }
 
-int writeQueue(TABLE_T *tableArray, int tableNumber,char *writeToPath){
-  FILE *fptr = fopen(writeToPath,"w");
-  MENU_T *traverseMenu = tableArray[tableNumber-1].menuList;
-  fprintf(fptr,"%d,",tableNumber);
-  while(traverseMenu != NULL){
-    /*fprintf(fptr,"%s",traverseMenu->name);
-    if(traverseMenu->next != NULL){
+/* Save all order's queue from customer to file .txt
+ *  [ Argument ]
+ *    tableNumber  -  table's number that ordered menu
+ *    order        -  pointer to MENU_T that store of first menu in menu list's
+ * order writeToPath  -  pointer to char that store name of file .txt [ Return ]
+ *    SUCCESS  -  saving success
+ */
+int writeQueue(int tableNumber, MENU_T *order, char *writeToPath) {
+  FILE *fptr = fopen(writeToPath, "a");
+  MENU_T *traverseMenu = order;
+  fprintf(fptr, "%d,", tableNumber);
+  while (traverseMenu != NULL) {
+    fprintf(fptr, "%s$%d", traverseMenu->name, traverseMenu->qty);
+    if (traverseMenu->next != NULL) {
       fprintf(fptr, ",");
-    }
-    else{
+    } else {
       fprintf(fptr, "\n");
-    }*/
-   printf("%s\n",traverseMenu->name);
+    }
     traverseMenu = traverseMenu->next;
   }
   fclose(fptr);
   return SUCCESS;
+}
+
+/* Get all order's queue from file .txt
+ *  [ Argument ]
+ *    queueHead    -  pointer to QUEUE_T that store first address of queue
+ *    write        -  pointer to char that store name of file .txt
+ *  [ Return ]
+ *    -1  -  data not exist in file
+ *    0   -  reading data from file is success
+ */
+int readqueueFile(QUEUE_T *queueHead, char *readFromPath) {
+  FILE *fptr = fopen(readFromPath, "r");
+  MENU_T *menuFromFile = NULL;
+  char buffer[1024];
+  char *tableNum = NULL;
+  char *menuName = NULL;
+  char *quantity = NULL;
+  if (fgets(buffer, 1024, fptr) == NULL) {
+    return -1;
+  }
+  fseek(fptr, 0, SEEK_SET);
+  while (fgets(buffer, 1024, fptr) != NULL) {
+    tableNum = strtok(buffer, ",");
+    menuName = strtok(NULL, "$");
+    quantity = strtok(NULL, ",");
+    while (menuName != NULL) {
+      push(&menuFromFile, menuName, atoi(quantity));
+      menuName = strtok(NULL, "$");
+      quantity = strtok(NULL, ",");
+    }
+    enqueue(queueHead, atoi(tableNum), menuFromFile);
+    menuFromFile = NULL;
+  }
+
+  fclose(fptr);
+  fptr = fopen(readFromPath, "w");
+  fprintf(fptr, "");
+  fclose(fptr);
+
+  return 0;
 }

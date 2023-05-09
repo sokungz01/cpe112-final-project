@@ -11,7 +11,7 @@ int readTableData(TABLE_T *tableArray, char *readFromPath);
 int customerCount(TABLE_T *table, int *tableNumber);
 int customerAction();
 int addMenutoCart(CATEGORY_T *categoryList, QUEUE_T *queue, TABLE_T *table,
-                  int tableNumber);
+                  int tableNumber,char *queueDBPath);
 void SearchMenu(CATEGORY_T **categoryList);
 void SyncTableCart(TABLE_T *tableArray, int tableNumber, MENU_T **top);
 int CheckBill(TABLE_T *table, int *tNumber, VOUCHER_T *voucherList);
@@ -24,5 +24,7 @@ QUEUE_T *createQueue();
 void enqueue(QUEUE_T *queue, int tableNumber, MENU_T *menuList);
 void dequeue(QUEUE_T *queue);
 
+// new function
+int findStackElement(MENU_T **orderStack, char *name, int newQty,int max);
 // Table Operation
 #endif
